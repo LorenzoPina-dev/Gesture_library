@@ -2,8 +2,10 @@
 embedding_net.py
 =================
 Livello 2 (parte 1/2): GestureEmbeddingNet, una piccola MLP che proietta il
-vettore piatto di 63 landmark normalizzati (21 punti x xyz) in uno spazio di
-embedding a 128 dimensioni, L2-normalizzato, adatto a classificazione
+vettore di input (default 69-d: 63 di shape normalizzata invariante a
+rotazione, 21 punti x xyz, + 6 di orientamento del polso, vedi
+gesture_engine.normalization.geometric.build_embedding_vector) in uno spazio
+di embedding a 128 dimensioni, L2-normalizzato, adatto a classificazione
 k-NN basata su distanza del coseno con Triplet Loss / Contrastive Loss.
 
 Nota di design: la rete e' volutamente leggera (poche centinaia di migliaia
@@ -33,7 +35,7 @@ import torch.nn.functional as F
 class GestureEmbeddingNet(nn.Module):
     def __init__(
         self,
-        input_dim: int = 63,
+        input_dim: int = 69,
         hidden_dims: Sequence[int] = (256, 256),
         embedding_dim: int = 128,
         dropout: float = 0.1,

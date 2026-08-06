@@ -93,8 +93,30 @@ def train(epochs: int, lr: float, batch_size: int, margin: float) -> None:
         embedding_dim=cfg.embedding.embedding_dim,
     )
     if os.path.exists(cfg.embedding.torch_weights_path):
-        model.load_state_dict(torch.load(cfg.embedding.torch_weights_path, map_location="cpu"))
-        print("Checkpoint esistente caricato, si continua il training (fine-tuning).")
+        checkpoint = torch.load(cfg.embedding.torch_weights_path, map_location="cpu")
+        checkpoint_input_dim = checkpoint.get("backbone.0.weight", None)
+        checkpoint_input_dim = checkpoint_input_dim.shape[1] if checkpoint_input_dim is not None else None
+
+        if checkpoint_input_dim is not None and checkpoint_input_dim != cfg.embedding.input_dim:
+            # Il checkpoint su disco e' stato addestrato con una versione precedente
+            # della pipeline di feature (es. senza le 6 feature di orientamento del
+            # polso: 63-d invece delle attuali 69-d). I pesi del primo layer non sono
+            # compatibili con la shape di input corrente: caricarli comunque farebbe
+            # fallire load_state_dict con un size mismatch. In questo caso e'
+            # necessario ripartire da zero (i pesi non sono ri-tarabili tra input_dim
+            # diversi) invece di far crashare il training.
+            print(
+                f"ATTENZIONE: il checkpoint esistente in '{cfg.embedding.torch_weights_path}' si aspetta "
+                f"input_dim={checkpoint_input_dim}, ma la configurazione attuale usa "
+                f"input_dim={cfg.embedding.input_dim} (probabilmente la pipeline di feature e' cambiata, "
+                f"es. aggiunta delle feature di orientamento del polso). Il checkpoint NON verra' caricato: "
+                f"si riparte da pesi inizializzati casualmente. Al termine del training ricorda di rieseguire "
+                f"'scripts/export_onnx.py' e di ri-enrollare tutte le gesture custom (i vecchi embedding non "
+                f"sono piu' compatibili con la rete riaddestrata)."
+            )
+        else:
+            model.load_state_dict(checkpoint)
+            print("Checkpoint esistente caricato, si continua il training (fine-tuning).")
 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     loss_fn = TripletLoss(margin=margin)

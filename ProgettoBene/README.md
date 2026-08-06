@@ -132,9 +132,11 @@ calcolato su distanze euclidee **relative** alla dimensione della mano
 dalla webcam e dimensione della mano dell'utente.
 
 ### Livello 2 — Deep Metric Learning + k-NN open-set
-`GestureEmbeddingNet` (MLP leggera, PyTorch) proietta i 63 valori di
-landmark normalizzati in uno spazio a 128-d L2-normalizzato, ottimizzato con
-**Triplet Loss**. Il classificatore k-NN (`EmbeddingKNNClassifier`) usa
+`GestureEmbeddingNet` (MLP leggera, PyTorch) proietta il vettore di input a
+69-d (63 valori di shape normalizzata, invariante a rotazione, + 6 di
+orientamento del polso — vedi `build_embedding_vector` in
+`gesture_engine/normalization/geometric.py`) in uno spazio a 128-d
+L2-normalizzato, ottimizzato con **Triplet Loss**. Il classificatore k-NN (`EmbeddingKNNClassifier`) usa
 distanza del coseno e **rifiuta** come `"UNKNOWN"` qualsiasi predizione la
 cui distanza media dai k vicini superi `knn.max_cosine_distance` (default
 0.30): questo azzera i falsi positivi su gesture mai viste.
@@ -201,8 +203,9 @@ rilevamento swipe.
 - **Nuova gesture custom**: tab "Enrollment" nella UI, oppure via codice:
   ```python
   engine.enrollment.start_session("mia_gesture")
-  # per ogni frame utile:
-  engine.enrollment.capture_sample(normalized_flat_vector)
+  # per ogni frame utile (embedding_input viene da HandFrameResult.embedding_input,
+  # cioe' build_embedding_vector(), la stessa pipeline usata in training):
+  engine.enrollment.capture_sample(embedding_input)
   engine.enrollment.finish_session()  # salva automaticamente su disco
   ```
 - **Nuova gesture sequenziale**: `engine.register_sequence("nome", ["fist", "open_palm"])`

@@ -6,6 +6,10 @@ from .geometric import (
     finger_extension_ratios,
     pinch_distance,
     average_curl,
+    wrist_orientation_matrix,
+    wrist_roll_pitch_yaw,
+    orientation_features,
+    build_embedding_vector,
 )
 from .filters import EMAFilter, OneEuroFilter, build_filter
 
@@ -17,6 +21,10 @@ __all__ = [
     "finger_extension_ratios",
     "pinch_distance",
     "average_curl",
+    "wrist_orientation_matrix",
+    "wrist_roll_pitch_yaw",
+    "orientation_features",
+    "build_embedding_vector",
     "EMAFilter",
     "OneEuroFilter",
     "build_filter",

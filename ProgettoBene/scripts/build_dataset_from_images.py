@@ -13,12 +13,13 @@ PUBBLICO di immagini organizzato "a cartelle per classe":
             ...
 
 Per ogni immagine rileva la mano con MediaPipe ed esegue esattamente la
-stessa normalizzazione geometrica usata a runtime da GestureEngine
-(fondamentale per coerenza), salvando vettori 63-d con la stessa identica
-struttura prodotta da scripts/collect_training_data.py. Cosi'
-scripts/train_embedding_net.py funziona invariato, ed e' anche possibile
-FONDERE un dataset pubblico con campioni raccolti a mano dalla webcam
-(--merge).
+stessa normalizzazione geometrica + estrazione feature di orientamento
+usate a runtime da GestureEngine (fondamentale per coerenza), salvando
+vettori 69-d (63 di shape normalizzata + 6 di orientamento del polso) con
+la stessa identica struttura prodotta da scripts/collect_training_data.py.
+Cosi' scripts/train_embedding_net.py funziona invariato, ed e' anche
+possibile FONDERE un dataset pubblico con campioni raccolti a mano dalla
+webcam (--merge).
 
 ATTENZIONE - IMPORTANTE:
 Questo script produce dati per ADDESTRARE il backbone (la rete di
@@ -47,7 +48,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from gesture_engine.config import EngineConfig
 from gesture_engine.ingestion import HandLandmarkerEngine
-from gesture_engine.normalization import normalize_landmarks, flatten
+from gesture_engine.normalization import build_embedding_vector
 
 OUTPUT_PATH = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "training_dataset.npz"
@@ -86,6 +87,14 @@ def main():
         data = np.load(OUTPUT_PATH, allow_pickle=True)
         vectors = list(data["vectors"])
         labels = list(data["labels"])
+        if vectors and vectors[0].shape[0] != cfg.embedding.input_dim:
+            raise ValueError(
+                f"Il dataset esistente in '{OUTPUT_PATH}' contiene vettori a {vectors[0].shape[0]}-d, "
+                f"ma la pipeline di feature attuale produce vettori a {cfg.embedding.input_dim}-d "
+                f"(build_embedding_vector). E' stato raccolto con una versione precedente della pipeline: "
+                f"non puoi fonderlo (--merge) con i nuovi campioni. Ricomincia senza --merge, oppure "
+                f"rigenera i vecchi campioni con la pipeline attuale."
+            )
         print(f"Dataset esistente caricato: {len(vectors)} campioni (verranno estesi).")
 
     per_class_count = {}
@@ -108,8 +117,7 @@ def main():
                 skipped_no_hand += 1
                 continue
 
-            normalized = normalize_landmarks(detections[0].landmarks)
-            vectors.append(flatten(normalized))
+            vectors.append(build_embedding_vector(detections[0].landmarks))
             labels.append(class_name)
             per_class_count[class_name] = per_class_count.get(class_name, 0) + 1
 

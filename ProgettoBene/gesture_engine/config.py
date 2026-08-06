@@ -71,7 +71,7 @@ class RuleBasedConfig:
 
 @dataclass
 class EmbeddingConfig:
-    input_dim: int = 63          # 21 landmark * 3 (x, y, z) normalizzati
+    input_dim: int = 69          # 63 shape (21*3, invariante a rotazione) + 6 orientamento polso (sin/cos di roll,pitch,yaw)
     embedding_dim: int = 128
     hidden_dims: tuple = (256, 256)
     onnx_model_path: str = os.path.join("models", "gesture_embedding.onnx")

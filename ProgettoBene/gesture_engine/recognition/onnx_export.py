@@ -35,6 +35,16 @@ def export_to_onnx(
 
     if os.path.exists(torch_weights_path):
         state = torch.load(torch_weights_path, map_location="cpu")
+        checkpoint_input_dim = state.get("backbone.0.weight", None)
+        checkpoint_input_dim = checkpoint_input_dim.shape[1] if checkpoint_input_dim is not None else None
+        if checkpoint_input_dim is not None and checkpoint_input_dim != embedding_config.input_dim:
+            raise RuntimeError(
+                f"Il checkpoint '{torch_weights_path}' si aspetta input_dim={checkpoint_input_dim}, ma "
+                f"EmbeddingConfig.input_dim={embedding_config.input_dim}. La pipeline di feature e' cambiata "
+                f"da quando questo checkpoint e' stato salvato: riaddestra prima con "
+                f"'scripts/train_embedding_net.py' (che riparte da zero automaticamente in questo caso) e poi "
+                f"riesporta."
+            )
         model.load_state_dict(state)
         print(f"[onnx_export] Pesi caricati da {torch_weights_path}")
     else:

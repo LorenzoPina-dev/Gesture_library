@@ -37,7 +37,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from gesture_engine.config import EngineConfig
 from gesture_engine.ingestion import HandLandmarkerEngine
-from gesture_engine.normalization import normalize_landmarks, flatten
+from gesture_engine.normalization import build_embedding_vector
 from gesture_engine.recognition import EmbeddingInferenceEngine, EmbeddingKNNClassifier
 
 IMG_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
@@ -111,9 +111,8 @@ def main():
                 skipped_no_hand += 1
                 continue
 
-            normalized = normalize_landmarks(detections[0].landmarks)
-            flat = flatten(normalized)
-            embedding = embedding_engine.embed(flat)
+            embedding_input = build_embedding_vector(detections[0].landmarks)
+            embedding = embedding_engine.embed(embedding_input)
             per_class_embeddings.setdefault(class_name, []).append(embedding)
 
             processed += 1

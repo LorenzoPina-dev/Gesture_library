@@ -39,6 +39,7 @@ from gesture_engine.normalization import (
     normalize_landmarks,
     flatten,
     build_filter,
+    build_embedding_vector,
 )
 from gesture_engine.recognition import (
     RuleBasedRecognizer,
@@ -62,6 +63,7 @@ class HandFrameResult:
     handedness: str
     raw_points: np.ndarray            # (21,3) coordinate immagine normalizzate [0,1]
     normalized_points: np.ndarray     # (21,3) invarianti a scala/traslazione/rotazione
+    embedding_input: np.ndarray       # (69,) shape normalizzata (63) + orientamento polso (6), input della embedding network
     rule_label: str
     rule_finger_count: int
     knn_label: str
@@ -171,13 +173,13 @@ class GestureEngine:
             filtered_raw = filt.filter(det.landmarks, timestamp_ms / 1000.0)
 
             normalized = normalize_landmarks(filtered_raw)
-            flat = flatten(normalized)
+            embedding_input = build_embedding_vector(filtered_raw)
 
             # --- Livello 1: rule-based ---
             rule_result = self._rule_based.recognize(normalized)
 
             # --- Livello 2: embedding + k-NN open-set ---
-            embedding = self._embedding_engine.embed(flat)
+            embedding = self._embedding_engine.embed(embedding_input)
             knn_result = self._knn.predict(embedding)
 
             # --- Livello 3: FSM temporale + swipe ---
@@ -188,6 +190,7 @@ class GestureEngine:
                 handedness=det.handedness,
                 raw_points=filtered_raw,
                 normalized_points=normalized,
+                embedding_input=embedding_input,
                 rule_label=rule_result.label,
                 rule_finger_count=rule_result.finger_count,
                 knn_label=knn_result.label,

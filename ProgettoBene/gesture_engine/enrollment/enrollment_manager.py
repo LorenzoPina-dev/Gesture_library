@@ -12,7 +12,7 @@ Flusso tipico (vedi anche ui/app.py per l'interfaccia grafica):
     manager = EnrollmentManager(embedding_engine, knn_classifier, knn_config)
     manager.start_session("mio_simbolo_custom")
     for ogni frame in cui l'utente mostra la gesture:
-        manager.capture_sample(normalized_flat_vector)
+        manager.capture_sample(embedding_input)  # da build_embedding_vector(), stessa pipeline del training
     manager.finish_session()   # salva su disco automaticamente
 """
 
@@ -59,12 +59,15 @@ class EnrollmentManager:
             raise ValueError("L'etichetta della gesture non puo' essere vuota.")
         self._session = EnrollmentSession(label=label.strip())
 
-    def capture_sample(self, normalized_flat_vector: np.ndarray) -> int:
+    def capture_sample(self, embedding_input: np.ndarray) -> int:
         """Calcola l'embedding del campione corrente e lo aggiunge alla sessione.
+        `embedding_input` deve provenire da build_embedding_vector() (stessa pipeline
+        di feature usata in training/collect_training_data.py), non dai soli landmark
+        normalizzati: incoerenze qui producono embedding non comparabili col database.
         Ritorna il numero totale di campioni raccolti finora nella sessione."""
         if self._session is None:
             raise RuntimeError("Nessuna sessione di enrollment attiva. Chiama start_session() prima.")
-        embedding = self._embedding_engine.embed(normalized_flat_vector)
+        embedding = self._embedding_engine.embed(embedding_input)
         self._session.collected_embeddings.append(embedding)
         return self._session.num_samples
 

@@ -1,9 +1,11 @@
 """
 scripts/collect_training_data.py
 ==================================
-Raccoglie un dataset etichettato di vettori di landmark normalizzati (63-d)
-dalla webcam, da usare per addestrare GestureEmbeddingNet con Triplet Loss
-(vedi scripts/train_embedding_net.py).
+Raccoglie un dataset etichettato di vettori di input della embedding network
+(69-d: 63 di shape normalizzata + 6 di orientamento del polso, vedi
+gesture_engine.normalization.geometric.build_embedding_vector) dalla webcam,
+da usare per addestrare GestureEmbeddingNet con Triplet Loss (vedi
+scripts/train_embedding_net.py).
 
 Uso interattivo:
     python scripts/collect_training_data.py
@@ -16,7 +18,7 @@ Comandi a schermo:
     - premi 'q' o ESC per terminare e salvare il dataset
 
 Il dataset viene salvato in data/training_dataset.npz con array:
-    - "vectors": (N, 63) float32
+    - "vectors": (N, 69) float32
     - "labels":  (N,) stringhe
 """
 
@@ -30,7 +32,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from gesture_engine.config import EngineConfig
 from gesture_engine.ingestion import CameraStream, HandLandmarkerEngine
-from gesture_engine.normalization import normalize_landmarks, flatten, build_filter
+from gesture_engine.normalization import build_embedding_vector, build_filter
 from gesture_engine.visualization import draw_hand, landmarks_to_pixel_coords
 
 OUTPUT_PATH = os.path.join(
@@ -51,6 +53,14 @@ def main():
         data = np.load(OUTPUT_PATH, allow_pickle=True)
         vectors = list(data["vectors"])
         labels = list(data["labels"])
+        if vectors and vectors[0].shape[0] != cfg.embedding.input_dim:
+            print(
+                f"ERRORE: il dataset esistente contiene vettori a {vectors[0].shape[0]}-d, ma la pipeline "
+                f"attuale (build_embedding_vector) produce vettori a {cfg.embedding.input_dim}-d. E' stato "
+                f"raccolto con una versione precedente della pipeline di feature. Rinomina o elimina "
+                f"'{OUTPUT_PATH}' e ricomincia la raccolta da zero."
+            )
+            return
         print(f"Dataset esistente caricato: {len(vectors)} campioni.")
 
     current_label = input("Nome della prima classe da registrare: ").strip()
@@ -79,8 +89,7 @@ def main():
 
             if key == ord("c") and detections:
                 filtered = filt.filter(detections[0].landmarks)
-                normalized = normalize_landmarks(filtered)
-                vectors.append(flatten(normalized))
+                vectors.append(build_embedding_vector(filtered))
                 labels.append(current_label)
                 print(f"Campione catturato per '{current_label}' (totale: {len(vectors)})")
 

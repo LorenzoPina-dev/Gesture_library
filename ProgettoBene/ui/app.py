@@ -348,8 +348,8 @@ class GestureEngineApp(tk.Tk):
 
                 # Enrollment: se una sessione e' attiva, cattura un campione per frame
                 if self._enrollment_capturing and results:
-                    normalized_flat = self.engine._last_results[0].normalized_points.reshape(-1)
-                    count = self.engine.enrollment.capture_sample(normalized_flat.astype("float32"))
+                    embedding_input = self.engine._last_results[0].embedding_input
+                    count = self.engine.enrollment.capture_sample(embedding_input.astype("float32"))
                     self.after(0, lambda c=count: self._update_enrollment_progress(c))
                     if count >= self._enrollment_target_samples:
                         label = self.engine.enrollment.finish_session()

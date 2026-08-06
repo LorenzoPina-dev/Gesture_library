@@ -17,9 +17,10 @@ import numpy as np
 
 class EmbeddingInferenceEngine:
     """
-    Interfaccia unica per ottenere l'embedding a 128-d di un vettore di
-    landmark normalizzati (63,), indipendentemente dal backend (ONNX o
-    PyTorch) effettivamente disponibile.
+    Interfaccia unica per ottenere l'embedding a 128-d di un vettore di input
+    (embedding_config.input_dim, tipicamente 69: shape normalizzata + orientamento
+    del polso, vedi gesture_engine.normalization.geometric.build_embedding_vector),
+    indipendentemente dal backend (ONNX o PyTorch) effettivamente disponibile.
     """
 
     def __init__(self, embedding_config, project_root: Optional[str] = None):
@@ -68,7 +69,8 @@ class EmbeddingInferenceEngine:
         )
 
     def embed(self, flat_vector: np.ndarray) -> np.ndarray:
-        """flat_vector: (63,) float32 -> ritorna embedding (128,) float32, L2-normalizzato."""
+        """flat_vector: (input_dim,) float32, prodotto da build_embedding_vector -> ritorna
+        embedding (128,) float32, L2-normalizzato."""
         x = flat_vector.astype(np.float32).reshape(1, -1)
 
         if self._backend == "onnx":
