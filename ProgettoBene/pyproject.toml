@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gesture-control-engine"
+version = "1.0.0"
+description = "Libreria Python industry-level per tracciamento, riconoscimento e gestione eventi di gesture della mano in tempo reale via webcam."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.24,<2.0",
+    "opencv-python>=4.9",
+    "mediapipe>=0.10.14",
+    "torch>=2.1",
+    "onnx>=1.16",
+    "onnxruntime>=1.17",
+    "Pillow>=10.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["gesture_engine*"]
