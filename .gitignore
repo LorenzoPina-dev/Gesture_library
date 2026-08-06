@@ -1,2 +1,5 @@
 /old
 /venv
+/ProgettoBene/gesture_engine/sign_language
+ProgettoBene/scripts/enroll_sign_templates.py
+ProgettoBene/scripts/run_sign_language_translate.py
