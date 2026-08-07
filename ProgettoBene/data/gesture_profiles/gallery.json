@@ -1,0 +1,19 @@
+{
+  "name": "gallery",
+  "match_process": ["photos.exe", "imageglass.exe", "irfanview.exe"],
+  "match_title": ["photos", "galleria", "gallery", "imageglass", "irfanview"],
+  "primary_hand": "Right",
+  "secondary_modifiers": {
+    "pugno": "ctrl"
+  },
+  "primary_actions": {
+    "puntatore": {"type": "move_cursor"},
+    "pinch": {"type": "left_drag"},
+    "middle_pinch": {"type": "right_click"},
+    "pugno": {"type": "scroll"}
+  },
+  "extra_gestures": {
+    "swipe.left": {"type": "key", "keys": ["right"]},
+    "swipe.right": {"type": "key", "keys": ["left"]}
+  }
+}

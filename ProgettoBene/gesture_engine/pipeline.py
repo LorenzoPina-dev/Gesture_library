@@ -96,7 +96,14 @@ class GestureEngine:
 
         # Livello 3
         self._sequence_fsm = GestureSequenceFSM(self.cfg.state_machine, self._on_sequence_complete)
-        self._swipe_detector = SwipeDetector(self.cfg.state_machine, self._on_swipe)
+        # Uno SwipeDetector per mano/slot di tracking (stesso pattern di _filters):
+        # un'unica istanza condivisa tra piu' mani mescolerebbe le posizioni dei
+        # polsi di mani diverse come se fossero un solo punto "che salta" da una
+        # parte all'altra del frame, generando swipe falsi quando entrambe le
+        # mani sono visibili contemporaneamente (es. run_dual_hand_control.py).
+        self._swipe_detectors = [
+            SwipeDetector(self.cfg.state_machine, self._on_swipe) for _ in range(self.cfg.landmarker.num_hands)
+        ]
 
         self._is_open = False
         self._running = False
@@ -184,7 +191,7 @@ class GestureEngine:
 
             # --- Livello 3: FSM temporale + swipe ---
             self._sequence_fsm.update(rule_result.label, now=now)
-            self._swipe_detector.update(filtered_raw[0][:2], now=now)
+            self._swipe_detectors[i % len(self._swipe_detectors)].update(filtered_raw[0][:2], now=now)
 
             result = HandFrameResult(
                 handedness=det.handedness,

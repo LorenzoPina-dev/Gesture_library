@@ -55,23 +55,13 @@ from gesture_engine.config import EngineConfig
 from gesture_engine.normalization import average_curl, finger_extension_ratios, pinch_distance
 from gesture_engine.recognition.embedding_net import GestureEmbeddingNet
 
-try:
-    import plotly.graph_objects as go
-except ImportError as exc:
-    raise SystemExit(
-        "Plotly non e' installato. Esegui 'pip install -r requirements-analysis.txt' e riprova."
-    ) from exc
+import plotly.graph_objects as go
 
-try:
-    from sklearn.decomposition import PCA
-    from sklearn.linear_model import Ridge
-    from sklearn.manifold import TSNE
-    from sklearn.metrics import silhouette_score
-    from sklearn.model_selection import KFold, cross_val_score
-except ImportError as exc:
-    raise SystemExit(
-        "scikit-learn non e' installato. Esegui 'pip install -r requirements-analysis.txt' e riprova."
-    ) from exc
+from sklearn.decomposition import PCA
+from sklearn.linear_model import Ridge
+from sklearn.manifold import TSNE
+from sklearn.metrics import silhouette_score
+from sklearn.model_selection import KFold, cross_val_score
 
 try:
     import umap
@@ -803,6 +793,7 @@ def main() -> None:
             + fig_scatter_by_label(combined_proj["MAIN_2D"], combined_labels,
                                     "Training + Enrollment colorati per classe").to_html(
                 full_html=False, include_plotlyjs=False),
+            ""
         ))
     else:
         sections.append((

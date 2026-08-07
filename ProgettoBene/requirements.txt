@@ -5,3 +5,10 @@ torch>=2.1
 onnx>=1.16
 onnxruntime>=1.17
 Pillow>=10.0
+
+# Opzionali, solo per scripts/run_dual_hand_control.py (rilevamento automatico
+# della finestra/app in primo piano per lo switch di profilo gesture -> azione;
+# senza queste due librerie lo script funziona comunque, ma usa sempre il
+# profilo "default"). Al momento solo Windows.
+pywin32; platform_system == "Windows"
+psutil

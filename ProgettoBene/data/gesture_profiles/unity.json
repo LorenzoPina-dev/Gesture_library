@@ -1,0 +1,34 @@
+{
+  "name": "Unity",
+  "match_process": ["unity.exe"],
+  "match_title": ["unity"],
+  "primary_hand": "Right",
+
+  "primary_actions": {
+    "puntatore":    {"type": "move_cursor"},
+    "pinch":        {"type": "left_drag"},
+    "middle_pinch": {"type": "right_drag"},
+    "aperta":       {"type": "middle_drag"},
+    "pugno":        {"type": "scroll"}
+  },
+
+  "secondary_modifiers": {
+    "pugno":  "ctrl",
+    "aperta": "alt",
+    "v":      "shift"
+  },
+
+  "extra_gestures": {
+    "swipe.left":                {"type": "key", "keys": ["ctrl", "z"]},
+    "swipe.right":               {"type": "key", "keys": ["ctrl", "y"]},
+    "swipe.up":                  {"type": "key", "keys": ["f"]},
+    "swipe.down":                {"type": "key", "keys": ["esc"]},
+    "custom_gesture.pollice su": {"type": "key", "keys": ["ctrl", "s"]},
+    "custom_gesture.corna":      {"type": "key", "keys": ["ctrl", "d"]},
+    "custom_gesture.call":       {"type": "key", "keys": ["ctrl", "p"]},
+    "custom_gesture.3":          {"type": "key", "keys": ["w"]},
+    "custom_gesture.4":          {"type": "key", "keys": ["e"]},
+    "custom_gesture.rombo":      {"type": "key", "keys": ["r"]}
+  }
+}
+

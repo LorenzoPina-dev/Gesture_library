@@ -1,0 +1,17 @@
+{
+  "name": "default",
+  "match_process": [],
+  "match_title": [],
+  "primary_hand": "Right",
+  "secondary_modifiers": {
+    "pugno": "ctrl",
+    "aperta": "shift"
+  },
+  "primary_actions": {
+    "puntatore": {"type": "move_cursor"},
+    "pinch": {"type": "left_drag"},
+    "middle_pinch": {"type": "right_drag"},
+    "pugno": {"type": "scroll"}
+  },
+  "extra_gestures": {}
+}
