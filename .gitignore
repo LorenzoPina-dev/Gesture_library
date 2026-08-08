@@ -1,5 +1,10 @@
-/old
-/venv
-/ProgettoBene/gesture_engine/sign_language
-ProgettoBene/scripts/enroll_sign_templates.py
-ProgettoBene/scripts/run_sign_language_translate.py
+__pycache__/
+*.pyc
+.venv/
+venv/
+data/engine_config.json
+data/training_dataset.npz
+data/enrolled_gestures/*.npz
+models/*.task
+models/*.onnx
+models/*.pt
